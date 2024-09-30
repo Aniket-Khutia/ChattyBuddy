@@ -24,7 +24,6 @@ if 'input_text' not in st.session_state:
 
 # CREATING THE UI
 st.header('ChattyBuddy')
-st.title('My Documents')
 
 # File upload widget
 file = st.file_uploader('')
@@ -104,18 +103,34 @@ if file:
             st.session_state.input_text = ''
 
             # Write a separator line after each complete line
-            st.write("---")
 
+    chatplaceholder=st.empty()
+    with chatplaceholder.container():
     # Display all previous questions and answers from session state
-    if st.session_state.qa_history:
-        for i, qa_pair in enumerate(st.session_state.qa_history, 1):
-            st.write(f"Question: {qa_pair['question']}")
-            st.write(f"Answer: {qa_pair['answer']}")
-            st.write("---")
+        for i, qa_pair in enumerate(st.session_state.qa_history,0):
+
+            if len(st.session_state.qa_history)-i==1:
+
+                st.write(f"Question: {qa_pair['question']}")
+                typing_container = st.empty()  # Create a container that will be updated with the answer
+
+                typed_text = ""
+                for char in qa_pair['answer']:
+                    typed_text += char
+                    # Update the container with the progressively typed text
+                    typing_container.write(f"Answer: {typed_text}")
+                    time.sleep(0.002)
+
+            else:
+                st.write(f"Question: {qa_pair['question']}")
+                st.write(f"Answer: {qa_pair['answer']}")
+                st.write("---")
+
 
     # Use session state for the question input field
     st.text_input('Ask me anything about the document!', value=st.session_state.input_text, key='input_text',
                   on_change=submit_question)
+
 
 else:
     st.write('Upload your file and start shooting your questions!!')
