@@ -10,6 +10,7 @@ from docx import Document
 from PIL import Image
 from dotenv import load_dotenv
 import os
+import time
 
 # Load environment variables
 load_dotenv()
@@ -72,6 +73,7 @@ if file:
     # Generate embeddings
     embeddings = FireworksEmbeddings(api_key=fireworks_api_key, model="nomic-ai/nomic-embed-text-v1.5")
     vector_store = FAISS.from_texts(chunks, embeddings)
+
 
 
 
