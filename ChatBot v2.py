@@ -27,7 +27,7 @@ st.header('ChattyBuddy')
 st.title('My Documents')
 
 # File upload widget
-file = st.file_uploader('Upload your pdf or image and shoot out your questions!!')
+file = st.file_uploader('')
 
 
 # EXTRACT THE TEXT FROM PDF/IMAGE
@@ -103,6 +103,8 @@ if file:
             # Clear the input field by resetting the session state variable for input
             st.session_state.input_text = ''
 
+            # Write a separator line after each complete line
+            st.write("---")
 
     # Display all previous questions and answers from session state
     if st.session_state.qa_history:
@@ -115,3 +117,7 @@ if file:
     st.text_input('Ask me anything about the document!', value=st.session_state.input_text, key='input_text',
                   on_change=submit_question)
 
+else:
+    st.write('Upload your file and start shooting your questions!!')
+    st.session_state.qa_history = []
+    st.session_state.input_text = ''
