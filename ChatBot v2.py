@@ -6,6 +6,7 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain_fireworks import ChatFireworks
 from langchain_fireworks import FireworksEmbeddings
 import pytesseract
+from docx import Document
 from PIL import Image
 from dotenv import load_dotenv
 import os
@@ -27,22 +28,37 @@ st.title('My Documents')
 # File upload widget
 file = st.file_uploader('Upload your pdf or image and shoot out your questions!!')
 
+
 # EXTRACT THE TEXT FROM PDF/IMAGE
 if file:
     typefile = file.type
     st.write(f"File type: {typefile}")
     text=''
+
+    # For pdf file
+
     if typefile == 'application/pdf':
         pdf_reader = PdfReader(file)
         for eachpage in pdf_reader.pages:
             text += eachpage.extract_text()
         st.text_area('Extracted Text', text, height=300)
 
+    # For image file
+
     elif typefile == 'image/jpeg':
         pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
         image_reader = Image.open(file)
         text = pytesseract.image_to_string(image_reader)
         st.text_area('Extracted Text', text, height=300)
+
+    # For docx file
+
+    elif typefile == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        doc=Document(file)
+        for para in doc.paragraphs:
+            text+=para.text+ ' '
+        st.text_area('Extracted Text', text, height=300)
+
 
     # Break text into chunks
     text_splitter = RecursiveCharacterTextSplitter(
@@ -86,16 +102,14 @@ if file:
             st.session_state.input_text = ''
 
 
-    # Use session state for the question input field
-    st.text_input('Ask me anything about the document!', value=st.session_state.input_text, key='input_text',
-                             on_change=submit_question())
-
-
-
     # Display all previous questions and answers from session state
     if st.session_state.qa_history:
-        st.write("### Question-Answer History:")
         for i, qa_pair in enumerate(st.session_state.qa_history, 1):
             st.write(f"Question: {qa_pair['question']}")
             st.write(f"Answer: {qa_pair['answer']}")
             st.write("---")
+
+    # Use session state for the question input field
+    st.text_input('Ask me anything about the document!', value=st.session_state.input_text, key='input_text',
+                  on_change=submit_question)
+
