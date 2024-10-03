@@ -6,7 +6,6 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain_fireworks import ChatFireworks
 from langchain_fireworks import FireworksEmbeddings
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.llm import LLMChain
 import pytesseract
 from docx import Document
@@ -76,9 +75,15 @@ if file:
         max_retries=2,
     )
 
-    summary, QnA = st.tabs(["Summary","QnA"])
+    summary, QnA = st.tabs(['summary','QnA'])
 
     # For Summarization purpose
+    with summary:
+
+        prompt = f"Write a concise summary of the following:\\n\\n{text}. Remember to include what it is about and the critical details mentioned. " \
+                 f"Just provide the summary,do not mention any extra word apart from the summary."
+        result=llm.invoke(prompt)
+        st.write(result.content)
 
 
     # For QnA purpose
@@ -86,7 +91,7 @@ if file:
     with QnA:
         # st.write('QnA')
 
-        st.text_area('Extracted Text', text, height=300)
+        #st.text_area('Extracted Text', text, height=300)
 
 
         # Break text into chunks
