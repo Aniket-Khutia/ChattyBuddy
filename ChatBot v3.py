@@ -3,10 +3,12 @@ from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
+from langchain.chains.summarize import load_summarize_chain
 from langchain_fireworks import ChatFireworks
 from langchain_fireworks import FireworksEmbeddings
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.llm import LLMChain
+from langchain.docstore.document import Document as dc
 import pytesseract
 from docx import Document
 from PIL import Image
@@ -77,13 +79,31 @@ if file:
 
     summary, QnA = st.tabs(['summary','QnA'])
 
+    text_splitter = RecursiveCharacterTextSplitter(
+        separators="\n",
+        chunk_size=500,
+        chunk_overlap=100,
+        length_function=len
+    )
+    chunks = text_splitter.split_text(text)
+
+
     # For Summarization purpose
+
     with summary:
 
-        prompt = f"Write a concise summary of the following:\\n\\n{text}. Remember to include what it is about and the critical details mentioned. " \
-                 f"Just provide the summary,do not mention any extra word apart from the summary."
-        result=llm.invoke(prompt)
-        st.write(result.content)
+        # prompt = f"Write a concise summary of the following:\\n\\n{text}. Remember to include what it is about and the critical details mentioned. " \
+        #          f"Just provide the summary,do not mention any extra word apart from the summary."
+        # result=llm.invoke(prompt)
+        # st.write(result.content)
+
+        # Creating document object from the text
+        docs = [dc(page_content=text)]
+        chain = load_summarize_chain(llm, chain_type="map_reduce")
+        summarys = chain.run(docs)
+        st.write(summarys)
+
+
 
 
     # For QnA purpose
@@ -95,13 +115,7 @@ if file:
 
 
         # Break text into chunks
-        text_splitter = RecursiveCharacterTextSplitter(
-            separators="\n",
-            chunk_size=500,
-            chunk_overlap=100,
-            length_function=len
-        )
-        chunks = text_splitter.split_text(text)
+
 
         # Generate embeddings
         embeddings = FireworksEmbeddings(api_key=fireworks_api_key, model="nomic-ai/nomic-embed-text-v1.5")

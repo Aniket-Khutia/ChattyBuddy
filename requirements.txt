@@ -1,0 +1,9 @@
+Streamlit
+langchain
+langchain-community
+pypdf2
+langchain-fireworks
+pytesseract
+python-docx
+pillow
+transformers
